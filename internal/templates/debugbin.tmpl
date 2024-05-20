@@ -1,0 +1,19 @@
+package main
+
+import (
+	"{{.ModPath}}/imports"
+
+	"github.com/traefik/yaegi/interp"
+	"github.com/traefik/yaegi/stdlib"
+)
+
+func main() {
+	i := interp.New(interp.Options{})
+	i.Use(stdlib.Symbols)
+	i.Use(imports.Symbols)
+	_, err := i.EvalPath("/Users/emicklei/Projects/github.com/emicklei/palimbo/cmd/varvoy/todebug/main.go")
+
+	if err != nil {
+		panic(err)
+	}
+}

@@ -1,3 +1,7 @@
+github.com/lmittmann/tint v1.0.4 h1:LeYihpJ9hyGvE0w+K2okPTGUdVLfng1+nDNVR4vWISc=
+github.com/lmittmann/tint v1.0.4/go.mod h1:HIS3gSy7qNwGCj+5oRjAutErFBl4BzdQP6cJZ0NfMwE=
 github.com/traefik-contrib/yaegi-debug-adapter v0.0.0-20220419125716-d76c0ac9f292 h1:BEuMA4Six/nSS7uIgDMRqFxAbjWkJyBtzstBO0ReI4w=
 github.com/traefik-contrib/yaegi-debug-adapter v0.0.0-20220419125716-d76c0ac9f292/go.mod h1:mElXDr+mBxcYDWvue+v7IjaiEBKlDnPAelXRQgmZAog=
 github.com/traefik/yaegi v0.11.3/go.mod h1:RuCwD8/wsX7b6KoQHOaIFUfuH3gQIK4KWnFFmJMw5VA=
+golang.org/x/mod v0.17.0 h1:zY54UmvipHiNd+pm+m0x9KhZ9hl1/7QNMyxXbc6ICqA=
+golang.org/x/mod v0.17.0/go.mod h1:hTbmBsO62+eylJbnUtE2MGJUyE7QWk4xUqPFrRgJ+7c=
