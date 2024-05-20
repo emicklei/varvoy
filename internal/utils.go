@@ -2,6 +2,7 @@ package internal
 
 import (
 	"log/slog"
+	"net"
 	"os"
 )
 
@@ -25,4 +26,19 @@ func osEnsureDir(dir string) error {
 	// }
 	os.Mkdir(dir, os.ModePerm)
 	return nil
+}
+
+// from https://github.com/phayes/freeport/blob/master/freeport.go
+func getFreePort() (int, error) {
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	if err != nil {
+		return 0, err
+	}
+
+	l, err := net.ListenTCP("tcp", addr)
+	if err != nil {
+		return 0, err
+	}
+	defer l.Close()
+	return l.Addr().(*net.TCPAddr).Port, nil
 }
