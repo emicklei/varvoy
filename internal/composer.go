@@ -60,17 +60,21 @@ func (c *Composer) Compose() error {
 		return err
 	}
 
+	// create imports folder
 	importsDir := path.Join(c.workDir, "imports")
 	if err := osEnsureDir(importsDir); err != nil {
 		return err
 	}
 
+	// copy shared definition for Symbols
 	err = os.WriteFile(path.Join(importsDir, "symbols.go"), symbolsTmpl, os.ModePerm)
 	if err != nil {
 		wd, _ := os.Getwd()
 		slog.Error("copy failed", "wd", wd, "err", err)
 		return err
 	}
+
+	// for yaegi Extracter to work, we need to be in the imports dir
 	os.Chdir(importsDir)
 	for _, each := range mod.Require {
 		if err := yaegiExtract(each.Mod.Path); err != nil {
@@ -78,7 +82,15 @@ func (c *Composer) Compose() error {
 		}
 	}
 	os.Chdir(c.workDir)
+
+	// add dependencies for the interpreter and varvoy
 	err = goModTidy()
+	if err != nil {
+		return err
+	}
+
+	// build binary to connect and run
+	err = goBuild("_debug_bin_varvoy")
 	if err != nil {
 		return err
 	}
@@ -109,17 +121,17 @@ func genMain(dir string, modpath string) error {
 	return tmpl.Execute(out, debugbinData{ModPath: modpath})
 }
 
-func yaegiExtract(require string) error {
-	slog.Debug("creating yaegi stub", "pkg", require)
-	cmd := exec.Command("yaegi", "extract", "-name", "imports", require)
+func goModTidy() error {
+	slog.Debug("tidy go modules")
+	cmd := exec.Command("go", "mod", "tidy")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
 
-func goModTidy() error {
-	slog.Debug("tidy go modules")
-	cmd := exec.Command("go", "mod", "tidy")
+func goBuild(target string) error {
+	slog.Debug("go build", "-o", target)
+	cmd := exec.Command("go", "build", "-o", target)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()

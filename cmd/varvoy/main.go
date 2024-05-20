@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"log/slog"
@@ -20,18 +19,12 @@ const Version = "0.0.1"
 //
 //	dap --listen=127.0.0.1:52950 --log-dest=3 --log
 func main() {
-	var (
-		addr    string
-		verbose bool
-		logdest int
-	)
-	flag.StringVar(&addr, "listen", "", "host:port to listen on")
-	flag.IntVar(&logdest, "log-dest", 0, "file descriptor to log to")
-	flag.BoolVar(&verbose, "log", false, "Verbose logging")
-	flag.Parse()
+	addr := flagValueString(getListenFlag())
+	verbose := getLogFlag()
+	logdest := flagValueInt(getLogDestFlag())
 
 	// process log flags
-	var lf = os.NewFile(uintptr(logdest), "yaegi-dap-vscode-logs")
+	var lf = os.NewFile(uintptr(logdest), "varvoy-dap-vscode-logs")
 	lvl := slog.LevelInfo
 	if verbose {
 		lvl = slog.LevelDebug
@@ -42,6 +35,7 @@ func main() {
 			TimeFormat: time.Kitchen,
 		}),
 	))
+	slog.Debug("flags", "addr", addr, "logdest", logdest, "verbose", verbose)
 
 	// connect
 	var l net.Listener
@@ -54,7 +48,7 @@ func main() {
 
 	// Line must start with "DAP server listening at:"
 	// see https://github.com/golang/vscode-go/blob/f907536117c3e9fc731be9277e992b8cc7cd74f1/extension/src/goDebugFactory.ts#L558
-	fmt.Println("DAP server listening at:", addr, fmt.Sprintf("(yaegi-dap-vscode:%s)", Version))
+	fmt.Println("DAP server listening at:", addr, fmt.Sprintf("(varvoy:%s)", Version))
 
 	// single session
 	slog.Debug("accepting...")

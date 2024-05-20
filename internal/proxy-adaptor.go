@@ -10,7 +10,7 @@ type ProxyAdapter struct{}
 
 // Initialize implements dap.Handler and should not be called directly.
 func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestArguments) (*dap.Capabilities, error) {
-	slog.Debug("initialize", "ccaps", ccaps)
+	slog.Debug("Initialize", "ccaps", ccaps)
 	return &dap.Capabilities{
 		SupportsConfigurationDoneRequest: dap.Bool(true),
 		SupportsFunctionBreakpoints:      dap.Bool(true),
@@ -19,8 +19,11 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 
 // Process implements dap.Handler and should not be called directly.
 func (a *ProxyAdapter) Process(pm dap.IProtocolMessage) error {
+	slog.Debug("Process", "msg", pm)
 	return nil
 }
 
 // Terminate implements dap.Handler and should not be called directly.
-func (a *ProxyAdapter) Terminate() {}
+func (a *ProxyAdapter) Terminate() {
+	slog.Debug("Terminate")
+}

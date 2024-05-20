@@ -11,3 +11,5 @@ if err := cmd.Process.Kill(); err != nil {
     log.Fatal("failed to kill process: ", err)
 }
 ```
+
+ps aux | grep varvoy | awk '{print $2}' | xargs kill
