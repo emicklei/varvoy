@@ -43,19 +43,32 @@ func (c *Composer) Compose() error {
 	}
 	slog.Info("module", "path", mod.Module.Mod.Path)
 
-	err = osCopy(modPath, path.Join(c.workDir, "go.mod"))
-	if err != nil {
-		wd, _ := os.Getwd()
-		slog.Error("copy failed", "wd", wd, "err", err)
+	// modify module to add replace
+	// replace github.com/traefik/yaegi => ../../../yaegi
+	// TODO
+	if err := mod.AddReplace("github.com/traefik/yaegi", "", "../../../yaegi", ""); err != nil {
 		return err
 	}
-	err = osCopy(path.Join(c.mainPath, "go.sum"), path.Join(c.workDir, "go.sum"))
+	// write mod
+	modContent, err := mod.Format()
 	if err != nil {
-		wd, _ := os.Getwd()
-		slog.Error("copy failed", "wd", wd, "err", err)
 		return err
 	}
-	err = genMain(c.workDir, mod.Module.Mod.Path)
+	os.WriteFile(path.Join(c.workDir, "go.mod"), modContent, os.ModePerm)
+
+	// err = osCopy(modPath, path.Join(c.workDir, "go.mod"))
+	// if err != nil {
+	// 	wd, _ := os.Getwd()
+	// 	slog.Error("copy failed", "wd", wd, "err", err)
+	// 	return err
+	// }
+	// err = osCopy(path.Join(c.mainPath, "go.sum"), path.Join(c.workDir, "go.sum"))
+	// if err != nil {
+	// 	wd, _ := os.Getwd()
+	// 	slog.Error("copy failed", "wd", wd, "err", err)
+	// 	return err
+	// }
+	err = genMain(c.mainPath, c.workDir, mod.Module.Mod.Path)
 	if err != nil {
 		return err
 	}
@@ -106,19 +119,20 @@ var symbolsTmpl []byte
 
 type debugbinData struct {
 	ModPath string
+	MainDir string
 }
 
-func genMain(dir string, modpath string) error {
+func genMain(mainDir, targetDir string, modpath string) error {
 	tmpl, err := template.New("debugbin").Parse(string(debugbinTmpl))
 	if err != nil {
 		return err
 	}
-	out, err := os.Create(path.Join(dir, "main.go"))
+	out, err := os.Create(path.Join(targetDir, "main.go"))
 	if err != nil {
 		return err
 	}
 	defer out.Close()
-	return tmpl.Execute(out, debugbinData{ModPath: modpath})
+	return tmpl.Execute(out, debugbinData{ModPath: modpath, MainDir: mainDir})
 }
 
 func goModTidy() error {

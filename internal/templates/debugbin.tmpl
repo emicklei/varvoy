@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"{{.ModPath}}/imports"
 
 	"github.com/traefik/yaegi/interp"
@@ -11,9 +13,13 @@ func main() {
 	i := interp.New(interp.Options{})
 	i.Use(stdlib.Symbols)
 	i.Use(imports.Symbols)
-	_, err := i.EvalPath("/Users/emicklei/Projects/github.com/emicklei/palimbo/cmd/varvoy/todebug/main.go")
-
+	prog, err := i.CompilePackage("{{.MainDir}}")
 	if err != nil {
 		panic(err)
 	}
+	res, err := i.ExecuteWithContext(context.Background(), prog)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res)
 }
