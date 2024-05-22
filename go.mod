@@ -3,6 +3,7 @@ module github.com/emicklei/varvoy
 go 1.21.5
 
 replace github.com/traefik/yaegi => ../yaegi
+replace github.com/traefik-contrib/yaegi-debug-adapter => ../yaegi-debug-adapter
 
 require (
 	github.com/lmittmann/tint v1.0.4
