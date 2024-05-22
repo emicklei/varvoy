@@ -12,3 +12,5 @@ func main() {
 	answer := question()
 	fmt.Println(answer, PI)
 }
+
+func question() int { return 42 }

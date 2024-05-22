@@ -35,8 +35,9 @@ func main() {
 	}()
 	defer close(errch)
 
-	srcPath := "/Users/emicklei/Projects/github.com/emicklei/varvoy/todebug/noimports"
-	// pkgDir := "/Users/emicklei/Projects/github.com/emicklei/varvoy/todebug/noimports"
+	srcPath := "/Users/emicklei/Projects/github.com/emicklei/varvoy/todebug/hello"
+	breakOnLine := 6
+
 	opts := &dbg.Options{
 		StopAtEntry:    false, // true then stop at first statement of main
 		NewInterpreter: newInterp,
@@ -67,8 +68,8 @@ func main() {
 			Source: dap.Source{
 				Path: dap.Str(srcPath),
 			},
-			Breakpoints: []*dap.SourceBreakpoint{{Line: 12}},
-			Lines:       []int{12},
+			Breakpoints: []*dap.SourceBreakpoint{{Line: breakOnLine}},
+			Lines:       []int{breakOnLine},
 		},
 	}
 
