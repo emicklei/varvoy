@@ -1,25 +1,10 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"{{.ModPath}}/imports"
-
-	"github.com/traefik/yaegi/interp"
-	"github.com/traefik/yaegi/stdlib"
+	"github.com/emicklei/varvoy/api"
 )
 
 func main() {
-	i := interp.New(interp.Options{})
-	i.Use(stdlib.Symbols)
-	i.Use(imports.Symbols)
-	prog, err := i.CompilePackage("{{.MainDir}}")
-	if err != nil {
-		panic(err)
-	}
-	res, err := i.ExecuteWithContext(context.Background(), prog)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(res)
+	api.Debug("{{.MainDir}}",imports.Symbols)
 }

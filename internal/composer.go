@@ -49,6 +49,9 @@ func (c *Composer) Compose() error {
 	if err := mod.AddReplace("github.com/traefik/yaegi", "", "../../../yaegi", ""); err != nil {
 		return err
 	}
+	if err := mod.AddReplace("github.com/emicklei/varvoy", "", "../../../varvoy", ""); err != nil {
+		return err
+	}
 	// write mod
 	modContent, err := mod.Format()
 	if err != nil {
@@ -56,18 +59,6 @@ func (c *Composer) Compose() error {
 	}
 	os.WriteFile(path.Join(c.workDir, "go.mod"), modContent, os.ModePerm)
 
-	// err = osCopy(modPath, path.Join(c.workDir, "go.mod"))
-	// if err != nil {
-	// 	wd, _ := os.Getwd()
-	// 	slog.Error("copy failed", "wd", wd, "err", err)
-	// 	return err
-	// }
-	// err = osCopy(path.Join(c.mainPath, "go.sum"), path.Join(c.workDir, "go.sum"))
-	// if err != nil {
-	// 	wd, _ := os.Getwd()
-	// 	slog.Error("copy failed", "wd", wd, "err", err)
-	// 	return err
-	// }
 	err = genMain(c.mainPath, c.workDir, mod.Module.Mod.Path)
 	if err != nil {
 		return err

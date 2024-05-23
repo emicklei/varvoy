@@ -9,7 +9,7 @@ func check(e error) {
 }
 
 func TestCompose(t *testing.T) {
-	c := NewComposer("/Users/emicklei/Projects/github.com/emicklei/varvoy/todebug")
+	c := NewComposer("/Users/emicklei/Projects/github.com/emicklei/varvoy/todebug/withimports")
 	err := c.Compose()
 	check(err)
 }
