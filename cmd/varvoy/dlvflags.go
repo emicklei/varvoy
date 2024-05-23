@@ -7,14 +7,14 @@ import (
 )
 
 func flagValueString(f string) string {
-	if !strings.Contains(f, "") {
+	if !strings.Contains(f, "=") {
 		return ""
 	}
 	return strings.Split(f, "=")[1]
 }
 
 func flagValueInt(f string) int {
-	if !strings.Contains(f, "") {
+	if !strings.Contains(f, "=") {
 		return 0
 	}
 	is := strings.Split(f, "=")[1]
