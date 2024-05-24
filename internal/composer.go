@@ -13,17 +13,17 @@ import (
 )
 
 type Composer struct {
-	workDir  string
-	mainPath string
+	workDir string
+	mainDir string
 }
 
-func NewComposer(mainPath string) *Composer {
+func NewComposer(mainDir string) *Composer {
 	// dir := os.TempDir()
 	dir := "/Users/emicklei/Projects/github.com/emicklei/varvoy/tmp"
 
 	return &Composer{
-		workDir:  path.Join(dir, "varvoy"),
-		mainPath: mainPath,
+		workDir: path.Join(dir, "varvoy"),
+		mainDir: mainDir,
 	}
 }
 
@@ -32,7 +32,7 @@ func (c *Composer) Compose() error {
 		return err
 	}
 
-	modPath := path.Join(c.mainPath, "go.mod")
+	modPath := path.Join(c.mainDir, "go.mod")
 	data, err := os.ReadFile(modPath)
 	if err != nil {
 		return err
@@ -46,9 +46,11 @@ func (c *Composer) Compose() error {
 	// modify module to add replace
 	// replace github.com/traefik/yaegi => ../../../yaegi
 	// TODO
+	// mod.AddRequire("github.com/traefik/yaegi", "v0.16.1")
 	if err := mod.AddReplace("github.com/traefik/yaegi", "", "../../../yaegi", ""); err != nil {
 		return err
 	}
+	// mod.AddRequire("github.com/emicklei/varvoy", "v0.0.0")
 	if err := mod.AddReplace("github.com/emicklei/varvoy", "", "../../../varvoy", ""); err != nil {
 		return err
 	}
@@ -59,7 +61,7 @@ func (c *Composer) Compose() error {
 	}
 	os.WriteFile(path.Join(c.workDir, "go.mod"), modContent, os.ModePerm)
 
-	err = genMain(c.mainPath, c.workDir, mod.Module.Mod.Path)
+	err = genMain(c.mainDir, c.workDir, mod.Module.Mod.Path)
 	if err != nil {
 		return err
 	}
@@ -79,9 +81,9 @@ func (c *Composer) Compose() error {
 	}
 
 	// for yaegi Extracter to work, we need to be in the imports dir
-	os.Chdir(importsDir)
+	os.Chdir(c.mainDir)
 	for _, each := range mod.Require {
-		if err := yaegiExtract(each.Mod.Path); err != nil {
+		if err := yaegiExtractTo(each.Mod.Path, importsDir); err != nil {
 			return err
 		}
 	}
@@ -114,6 +116,7 @@ type debugbinData struct {
 }
 
 func genMain(mainDir, targetDir string, modpath string) error {
+	slog.Debug("write main.go", "maindir", mainDir, "targetdir", targetDir, "modpath", modpath)
 	tmpl, err := template.New("debugbin").Parse(string(debugbinTmpl))
 	if err != nil {
 		return err
