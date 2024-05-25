@@ -12,7 +12,10 @@
             "dlvFlags": [
                 "--log"
             ],
-            "program": "${fileDirname}"
+            "program": "${fileDirname}",
+            "args": [
+                "somearg"
+            ]
         }
     ]
 }

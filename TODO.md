@@ -1,4 +1,7 @@
 
+- how to pass command line arguments ?
+
+
 ```
 // Start a process:
 cmd := exec.Command("sleep", "5")
