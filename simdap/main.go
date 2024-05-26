@@ -35,7 +35,16 @@ func (a *mockAdapter) Process(pm dap.IProtocolMessage) error {
 		return nil
 	}
 	slog.Debug("Process", "command", m.Command, "seq", m.Seq)
-	return a.session.Respond(m, true, "Success", nil)
+
+	var body dap.ResponseBody
+	switch m.Command {
+	case "setBreakpoints":
+		body = &dap.SetBreakpointsResponseBody{}
+	case "setFunctionBreakpoints":
+		body = &dap.SetFunctionBreakpointsResponseBody{}
+	}
+
+	return a.session.Respond(m, true, "Success", body)
 }
 
 func (a *mockAdapter) Terminate() {

@@ -1,6 +1,6 @@
-github.com/emicklei/tre v1.7.0 h1:bEZhzT3o+9lcJ4KQh+uf0mv7rmMe0LEtVDa/7F5iq/c=
-github.com/emicklei/tre v1.7.0/go.mod h1:3e+DTVKARET1BwLFwOIJwgYLUtkN+X9XZT0JDnb+OYY=
-github.com/lmittmann/tint v1.0.4 h1:LeYihpJ9hyGvE0w+K2okPTGUdVLfng1+nDNVR4vWISc=
-github.com/lmittmann/tint v1.0.4/go.mod h1:HIS3gSy7qNwGCj+5oRjAutErFBl4BzdQP6cJZ0NfMwE=
+github.com/emicklei/yaegi v0.1.0 h1:1Kw68l6ldSDQPl0zwwMrerW4S8QWgsLC8XgqZ9E49lY=
+github.com/emicklei/yaegi v0.1.0/go.mod h1:4eVhbPb3LnD2VigQjhYbEJ69vDRFdT2HQNrXx8eEwUY=
+github.com/emicklei/yaegi-debug-adapter v0.1.0 h1:mRaIiGAutZ95C/2CL7Mgw59lbPga+KVZn7WSogVRRBk=
+github.com/emicklei/yaegi-debug-adapter v0.1.0/go.mod h1:mElXDr+mBxcYDWvue+v7IjaiEBKlDnPAelXRQgmZAog=
 golang.org/x/mod v0.17.0 h1:zY54UmvipHiNd+pm+m0x9KhZ9hl1/7QNMyxXbc6ICqA=
 golang.org/x/mod v0.17.0/go.mod h1:hTbmBsO62+eylJbnUtE2MGJUyE7QWk4xUqPFrRgJ+7c=

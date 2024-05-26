@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 
 	_ "embed"
 
@@ -13,17 +14,19 @@ import (
 )
 
 type Composer struct {
-	workDir string
-	mainDir string
+	workDir          string
+	mainDir          string
+	targetBinaryName string
 }
 
 func NewComposer(mainDir string) *Composer {
-	// dir := os.TempDir()
-	dir := "/Users/emicklei/Projects/github.com/emicklei/varvoy/tmp"
+	dir := os.TempDir()
+	// dir := "/Users/emicklei/Projects/github.com/emicklei/varvoy/tmp"
 
 	return &Composer{
-		workDir: path.Join(dir, "varvoy"),
-		mainDir: mainDir,
+		workDir:          path.Join(dir, "varvoy"),
+		mainDir:          mainDir,
+		targetBinaryName: "_debug_bin_varvoy_" + RandStringRunes(8),
 	}
 }
 
@@ -47,11 +50,16 @@ func (c *Composer) Compose() error {
 	// replace github.com/traefik/yaegi => ../../../yaegi
 	// TODO
 	// mod.AddRequire("github.com/traefik/yaegi", "v0.16.1")
-	if err := mod.AddReplace("github.com/traefik/yaegi", "", "../../../yaegi", ""); err != nil {
+	// if err := mod.AddReplace("github.com/traefik/yaegi", "", "../../../yaegi", ""); err != nil {
+	if err := mod.AddReplace("github.com/traefik/yaegi", "", "github.com/emicklei/yaegi", "v0.1.0"); err != nil {
+		return err
+	}
+	// replace github.com/traefik-contrib/yaegi-debug-adapter => github.com/emicklei/yaegi-debug-adapter v0.1.0
+	if err := mod.AddReplace("github.com/traefik-contrib/yaegi-debug-adapter", "", "github.com/emicklei/yaegi-debug-adapter", "v0.1.0"); err != nil {
 		return err
 	}
 	// mod.AddRequire("github.com/emicklei/varvoy", "v0.0.0")
-	if err := mod.AddReplace("github.com/emicklei/varvoy", "", "../../../varvoy", ""); err != nil {
+	if err := mod.AddReplace("github.com/emicklei/varvoy", "", "/Users/emicklei/Projects/github.com/emicklei/varvoy", ""); err != nil {
 		return err
 	}
 	// write mod
@@ -96,7 +104,7 @@ func (c *Composer) Compose() error {
 	}
 
 	// build binary to connect and run
-	err = goBuild("_debug_bin_varvoy")
+	err = goBuild(filepath.Join(c.mainDir, c.targetBinaryName))
 	if err != nil {
 		return err
 	}

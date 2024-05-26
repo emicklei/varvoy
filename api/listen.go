@@ -5,9 +5,7 @@ import (
 	"log/slog"
 	"net"
 	"os"
-	"time"
 
-	"github.com/lmittmann/tint"
 	"github.com/traefik-contrib/yaegi-debug-adapter/pkg/dap"
 )
 
@@ -27,12 +25,18 @@ func ListenAndHandle(adp dap.Handler, opts ListenOptions) {
 		lvl = slog.LevelDebug
 	}
 	slog.SetDefault(slog.New(
-		tint.NewHandler(lf, &tint.Options{
-			Level:      lvl,
-			TimeFormat: time.Kitchen,
-			AddSource:  true,
-		}),
-	))
+		slog.NewTextHandler(lf, &slog.HandlerOptions{
+			AddSource: lvl < slog.LevelInfo,
+			Level:     lvl,
+			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+				// omits
+				if a.Key == "time" {
+					return slog.Attr{}
+				}
+				return a
+			},
+		})))
+
 	slog.Debug("flags", "addr", addr, "logdest", logdest, "verbose", verbose)
 
 	// connect

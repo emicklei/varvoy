@@ -11,13 +11,17 @@ import (
 	"github.com/traefik-contrib/yaegi-debug-adapter/pkg/dap"
 )
 
+const (
+	eventInitialized = "initialized"
+	respondSuccess   = "Success"
+)
+
 type ProxyAdapter struct {
 	session *dap.Session
 
 	// for the target program to debug
 	proxySession *ProxySession
 	debugProcess *os.Process
-	debugPort    int
 	debugConn    net.Conn
 }
 
@@ -32,7 +36,6 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 		slog.Error("unable to get free tcp port", "err", err)
 		return nil, err
 	}
-	a.debugPort = port
 	addr := fmt.Sprintf("127.0.0.1:%d", port)
 	// TODO get the 3 from flag
 	debugArgs := []string{
@@ -64,13 +67,6 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 	}
 	a.proxySession = NewProxySession(a, conn)
 
-	// go func() {
-	// 	if err := a.proxySession.Run(); err != nil {
-	// 		slog.Warn("aborted run session", "err", err)
-	// 	}
-	// 	a.Terminate()
-	// }()
-
 	slog.Debug("simulate an initialize that was received by the session")
 	dapRequest := new(dap.Request)
 	dapRequest.Seq = 1 // guess
@@ -78,7 +74,7 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 	dapRequest.Command = "initialize"
 	dapRequest.Arguments = ccaps
 
-	if err := a.proxySession.ForwardAndRespond(dapRequest, true); err != nil {
+	if err := a.proxySession.ForwardAndRespond(dapRequest); err != nil {
 		slog.Error("unable to forward initialize request to debug process", "err", err)
 		return nil, err
 	}
@@ -95,17 +91,18 @@ func (a *ProxyAdapter) Process(pm dap.IProtocolMessage) error {
 	if !ok {
 		return nil
 	}
+	slog.Debug("Process", "command", m.Command)
 	var stop bool
 	success := false
-	var message string
-	var body dap.ResponseBody
 
 	switch m.Command {
 
 	case "disconnect":
-		if err := a.killDebug(); err != nil {
-			return err
+		if a.debugConn != nil {
+			a.debugConn.Close()
+			a.debugConn = nil
 		}
+		stop = true // only at disconnect
 		success = true
 	case "terminate":
 		if err := a.killDebug(); err != nil {
@@ -113,17 +110,22 @@ func (a *ProxyAdapter) Process(pm dap.IProtocolMessage) error {
 		}
 		success = true
 	default:
-		if err := a.proxySession.ForwardAndRespond(m, false); err != nil {
+		if m.Command == "launch" {
+			if err := a.session.Event(eventInitialized, nil); err != nil {
+				return err
+			}
+		}
+		if err := a.proxySession.ForwardAndRespond(m); err != nil {
 			slog.Error("unable to forward request to debug process", "err", err)
 			return err
 		}
 		return nil
 	}
-	err := a.session.Respond(m, success, message, body)
+	err := a.session.Respond(m, success, respondSuccess, nil)
 	if err != nil {
+		slog.Error("unable to respong to Process", "command", m.Command, "err", err)
 		return err
 	}
-
 	if stop {
 		return dap.ErrStop
 	}
@@ -137,15 +139,13 @@ func (a *ProxyAdapter) Terminate() {
 }
 
 func (a *ProxyAdapter) killDebug() error {
-	slog.Debug("disconnect and kill the debug process")
-	if a.debugConn != nil {
-		a.debugConn.Close()
-	}
+	slog.Debug("kill the debug process")
 	if a.debugProcess != nil {
 		if err := a.debugProcess.Kill(); err != nil {
 			slog.Error("unable to kill debug process", "err", err)
 			return err
 		}
+		a.debugProcess = nil
 	}
 	return nil
 }
