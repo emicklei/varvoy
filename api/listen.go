@@ -48,14 +48,12 @@ func ListenAndHandle(adp dap.Handler, opts ListenOptions) {
 	}
 
 	// single session
-	slog.Debug("accepting...")
 	s, c, err := srv.Accept()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer func() { _ = c.Close() }()
 
-	slog.Debug("running...")
 	err = s.Run()
 	if err != nil {
 		log.Fatal(err)
