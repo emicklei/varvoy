@@ -1,7 +1,10 @@
 package internal
 
 import (
+	"errors"
+	"fmt"
 	"html/template"
+	"io/fs"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -14,20 +17,25 @@ import (
 )
 
 type Composer struct {
-	workDir          string
-	mainDir          string
-	targetBinaryName string
+	workDir        string
+	mainDir        string
+	executableName string
 }
 
-func NewComposer(mainDir string) *Composer {
+func NewExecutableComposer(mainDir string) *Composer {
 	dir := os.TempDir()
-	// dir := "/Users/emicklei/Projects/github.com/emicklei/varvoy/tmp"
 
+	random := RandStringRunes(8)
 	return &Composer{
-		workDir:          path.Join(dir, "varvoy"),
-		mainDir:          mainDir,
-		targetBinaryName: "_debug_bin_varvoy_" + RandStringRunes(8),
+		workDir:        filepath.Join(dir, "varvoy_"+random),
+		mainDir:        mainDir,
+		executableName: "_debug_bin_varvoy_" + random,
 	}
+}
+
+// Valid after Go compilation
+func (c *Composer) FullExecName() string {
+	return filepath.Join(c.mainDir, c.executableName)
 }
 
 func (c *Composer) Compose() error {
@@ -38,6 +46,9 @@ func (c *Composer) Compose() error {
 	modPath := path.Join(c.mainDir, "go.mod")
 	data, err := os.ReadFile(modPath)
 	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return fmt.Errorf("no go.mod found")
+		}
 		return err
 	}
 	mod, err := modfile.ParseLax(modPath, data, nil)
@@ -104,7 +115,7 @@ func (c *Composer) Compose() error {
 	}
 
 	// build binary to connect and run
-	err = goBuild(filepath.Join(c.mainDir, c.targetBinaryName))
+	err = goBuild(filepath.Join(c.mainDir, c.executableName))
 	if err != nil {
 		return err
 	}

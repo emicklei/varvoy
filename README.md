@@ -31,3 +31,4 @@ Use `which varvoy` to find the absolute path.
 
 - linux only for now
 - go mod file cannot have replace
+- project must have a go.mod

@@ -30,6 +30,14 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 	slog.Debug("Initialize")
 	a.session = s
 
+	// create temporary binary
+	wd, _ := os.Getwd()
+	comp := NewExecutableComposer(wd)
+	if err := comp.Compose(); err != nil {
+		slog.Error("unable to create debug binary", "err", err)
+		return nil, err
+	}
+
 	// fire up debug process
 	port, err := getFreePort()
 	if err != nil {
@@ -41,7 +49,7 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 	debugArgs := []string{
 		"--log-dest=3", "--log", fmt.Sprintf("--listen=%s", addr),
 	}
-	cmd := exec.Command("simdap", debugArgs...)
+	cmd := exec.Command(comp.FullExecName(), debugArgs...)
 	if err := cmd.Start(); err != nil {
 		slog.Error("unable to start program to debug", "err", err)
 		return nil, err

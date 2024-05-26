@@ -18,7 +18,7 @@ func enableDebugLog() {
 
 func TestCompose(t *testing.T) {
 	enableDebugLog()
-	c := NewComposer("/Users/emicklei/Projects/github.com/emicklei/varvoy/todebug/withimports")
+	c := NewExecutableComposer("/Users/emicklei/Projects/github.com/emicklei/varvoy/todebug/withimports")
 	err := c.Compose()
 	check(err)
 }

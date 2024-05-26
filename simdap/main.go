@@ -38,6 +38,9 @@ func (a *mockAdapter) Process(pm dap.IProtocolMessage) error {
 
 	var body dap.ResponseBody
 	switch m.Command {
+	// Needed?
+	// case "launch":
+	// 	a.session.Event("initialized", nil)
 	case "setBreakpoints":
 		body = &dap.SetBreakpointsResponseBody{}
 	case "setFunctionBreakpoints":

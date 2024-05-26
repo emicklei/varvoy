@@ -36,7 +36,7 @@ func (p *ProxySession) ForwardAndRespond(dapRequest *dap.Request) error {
 		slog.Error("failed to forward request", "err", err, "r", dapRequest)
 		return err
 	}
-	slog.Debug("forward", "seq", dapRequest.ProtocolMessage.Seq, "command", dapRequest.Command)
+	slog.Debug("forwarded", "seq", dapRequest.ProtocolMessage.Seq, "command", dapRequest.Command)
 
 	// receive from downstream
 	pm, err := p.dec.Decode()
