@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"log/slog"
+	"os"
 
 	"github.com/emicklei/varvoy/api"
 	"github.com/traefik-contrib/yaegi-debug-adapter/pkg/dap"
@@ -23,6 +24,8 @@ type mockAdapter struct {
 
 func (a *mockAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestArguments) (*dap.Capabilities, error) {
 	a.session = s
+	var lf = os.NewFile(uintptr(3), "varvoy-logs")
+	a.session.Debug(lf)
 	return &dap.Capabilities{
 		SupportsConfigurationDoneRequest: dap.Bool(true),
 		SupportsFunctionBreakpoints:      dap.Bool(true),
@@ -38,9 +41,9 @@ func (a *mockAdapter) Process(pm dap.IProtocolMessage) error {
 
 	var body dap.ResponseBody
 	switch m.Command {
-	// Needed?
-	// case "launch":
-	// 	a.session.Event("initialized", nil)
+	case "launch":
+		slog.Debug("Event", "name", "initialized")
+		a.session.Event("initialized", nil)
 	case "setBreakpoints":
 		body = &dap.SetBreakpointsResponseBody{}
 	case "setFunctionBreakpoints":

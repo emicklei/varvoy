@@ -30,6 +30,7 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 	slog.Debug("Initialize")
 	a.session = s
 
+	/**
 	// create temporary binary
 	wd, _ := os.Getwd()
 	comp := NewExecutableComposer(wd)
@@ -37,6 +38,9 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 		slog.Error("unable to create debug binary", "err", err)
 		return nil, err
 	}
+	prog := comp.FullExecName()
+	**/
+	prog := "simdap"
 
 	// fire up debug process
 	port, err := getFreePort()
@@ -49,7 +53,9 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 	debugArgs := []string{
 		"--log-dest=3", "--log", fmt.Sprintf("--listen=%s", addr),
 	}
-	cmd := exec.Command(comp.FullExecName(), debugArgs...)
+
+	slog.Debug("start exec", "bin", prog, "args", debugArgs)
+	cmd := exec.Command(prog, debugArgs...)
 	if err := cmd.Start(); err != nil {
 		slog.Error("unable to start program to debug", "err", err)
 		return nil, err
@@ -82,10 +88,16 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 	dapRequest.Command = "initialize"
 	dapRequest.Arguments = ccaps
 
-	if err := a.proxySession.ForwardAndRespond(dapRequest); err != nil {
+	if err := a.proxySession.Forward(dapRequest); err != nil {
 		slog.Error("unable to forward initialize request to debug process", "err", err)
 		return nil, err
 	}
+
+	go func() {
+		if err := a.proxySession.ReceiveAndRespond(); err != nil {
+			slog.Error("ReceiveAndRespond failed", "err", err)
+		}
+	}()
 
 	return &dap.Capabilities{
 		SupportsConfigurationDoneRequest: dap.Bool(true),
@@ -118,12 +130,7 @@ func (a *ProxyAdapter) Process(pm dap.IProtocolMessage) error {
 		}
 		success = true
 	default:
-		if m.Command == "launch" {
-			if err := a.session.Event(eventInitialized, nil); err != nil {
-				return err
-			}
-		}
-		if err := a.proxySession.ForwardAndRespond(m); err != nil {
+		if err := a.proxySession.Forward(m); err != nil {
 			slog.Error("unable to forward request to debug process", "err", err)
 			return err
 		}
