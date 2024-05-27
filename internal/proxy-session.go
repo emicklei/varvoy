@@ -2,6 +2,7 @@ package internal
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net"
 	"sync"
@@ -42,33 +43,33 @@ func (p *ProxySession) Forward(dapRequest *dap.Request) error {
 		return err
 	}
 	slog.Debug("forwarded", "seq", dapRequest.ProtocolMessage.Seq, "command", dapRequest.Command)
-	/**
-		// receive from downstream
-		pm, err := p.dec.Decode()
-		if err != nil {
-			slog.Error("failed to receive response", "err", err, "request-seq", dapRequest.ProtocolMessage.Seq)
-			return err
-		}
-		dapResponse, ok := pm.(*dap.Response)
-		if !ok {
-			return fmt.Errorf("loop: response expected, got: %[1]v(%[1]T)", pm)
-		}
-		slog.Debug("received", "seq", dapResponse.Seq, "success", dapResponse.Success, "command", dapResponse.Command)
-
-		// respond back to upstream
-		err = p.adapter.session.Respond(dapRequest, true, dapResponse.Message.Get(), dapResponse.Body)
-		if errors.Is(err, ErrStop) {
-			return nil
-		} else if err != nil {
-			slog.Error("unable to respond", "err", err, "response-seq", dapResponse.Seq)
-			return err
-		}
-	**/
 	return nil
 }
 
-// ReceiveAndRespond receives protocolmessages (Response,Event) and respond with them
-func (p *ProxySession) ReceiveAndRespond() error {
+func (p *ProxySession) ReceiveInitializeResponse() (*dap.Capabilities, error) {
+	pm, err := p.dec.Decode()
+	if err != nil {
+		slog.Error("failed to decode message", "err", err)
+		return nil, err
+	}
+	resp, ok := pm.(*dap.Response)
+	if !ok {
+		slog.Error("expected dap.Response", "got", fmt.Sprintf("%T", pm))
+		return nil, err
+
+	}
+	body, ok := resp.Body.(*dap.Capabilities)
+	if !ok {
+		slog.Error("expected dap.CapabilitiesEventBody", "got", fmt.Sprintf("%T", pm))
+		return nil, err
+
+	}
+	return body, nil
+}
+
+// Run starts the session. Run blocks until the session is terminated.
+// Run receives protocolmessages (Response,Event) and responds them.
+func (p *ProxySession) Run() error {
 	slog.Debug("receiving and responding messages...")
 
 	for {

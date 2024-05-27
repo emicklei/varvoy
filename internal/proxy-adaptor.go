@@ -61,7 +61,7 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 		return nil, err
 	}
 	a.debugProcess = cmd.Process
-	// connect to debugProces
+	// connect to debugProcess
 	attempts := 5
 	var conn net.Conn
 	for {
@@ -93,16 +93,18 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 		return nil, err
 	}
 
+	caps, err := a.proxySession.ReceiveInitializeResponse()
+	if err != nil {
+		return nil, err
+	}
+
 	go func() {
-		if err := a.proxySession.ReceiveAndRespond(); err != nil {
-			slog.Error("ReceiveAndRespond failed", "err", err)
+		if err := a.proxySession.Run(); err != nil {
+			slog.Error("Run failed", "err", err)
 		}
 	}()
 
-	return &dap.Capabilities{
-		SupportsConfigurationDoneRequest: dap.Bool(true),
-		SupportsFunctionBreakpoints:      dap.Bool(true),
-	}, nil
+	return caps, nil
 }
 
 // Process implements dap.Handler and should not be called directly.

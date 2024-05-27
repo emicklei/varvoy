@@ -7,7 +7,7 @@ import (
 	"github.com/emicklei/varvoy/internal"
 )
 
-const Version = "0.0.2"
+const Version = "0.0.3"
 
 // This program accepts the Delve (dlv) flags and args because that is hardcoded in the vscode-go plugin. Example is:
 //
