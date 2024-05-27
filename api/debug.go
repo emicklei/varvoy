@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"reflect"
 
@@ -23,9 +24,9 @@ func Debug(mainDir string, symbols map[string]map[string]reflect.Value) {
 		i := interp.New(opts)
 		i.Use(stdlib.Symbols)
 		i.Use(symbols)
-		i.ImportUsed()
 		_, err := i.CompilePackage(mainDir)
 		if err != nil {
+			slog.Error("CompilePackage failed", "err", err)
 			return nil, err
 		}
 		return i, nil

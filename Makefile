@@ -1,4 +1,4 @@
-install:
+install: clean
 	go mod tidy
 	cd cmd/varvoy && go install
 	cd simdap && go install
