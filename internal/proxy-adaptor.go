@@ -23,6 +23,7 @@ type ProxyAdapter struct {
 	proxySession *ProxySession
 	debugProcess *os.Process
 	debugConn    net.Conn
+	debugBin     string
 }
 
 // Initialize implements dap.Handler and should not be called directly.
@@ -30,17 +31,20 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 	slog.Debug("Initialize")
 	a.session = s
 
-	/**
 	// create temporary binary
 	wd, _ := os.Getwd()
-	comp := NewExecutableComposer(wd)
+	opts := ComposeOptions{
+		TempDir: os.TempDir(),
+		MainDir: wd,
+	}
+	comp := NewExecutableComposer(opts)
 	if err := comp.Compose(); err != nil {
 		slog.Error("unable to create debug binary", "err", err)
 		return nil, err
 	}
-	prog := comp.FullExecName()
-	**/
-	prog := "simdap"
+	a.debugBin = comp.FullExecName()
+
+	//a.debugBin := "simdap"
 
 	// fire up debug process
 	port, err := getFreePort()
@@ -54,8 +58,8 @@ func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestAr
 		"--log-dest=3", "--log", fmt.Sprintf("--listen=%s", addr),
 	}
 
-	slog.Debug("start exec", "bin", prog, "args", debugArgs)
-	cmd := exec.Command(prog, debugArgs...)
+	slog.Debug("start exec", "bin", a.debugBin, "args", debugArgs)
+	cmd := exec.Command(a.debugBin, debugArgs...)
 	if err := cmd.Start(); err != nil {
 		slog.Error("unable to start program to debug", "err", err)
 		return nil, err
@@ -127,7 +131,7 @@ func (a *ProxyAdapter) Process(pm dap.IProtocolMessage) error {
 		stop = true // only at disconnect
 		success = true
 	case "terminate":
-		if err := a.killDebug(); err != nil {
+		if err := a.tearDown(); err != nil {
 			return err
 		}
 		success = true
@@ -152,10 +156,14 @@ func (a *ProxyAdapter) Process(pm dap.IProtocolMessage) error {
 // Terminate implements dap.Handler and should not be called directly.
 func (a *ProxyAdapter) Terminate() {
 	slog.Debug("Terminate")
-	a.killDebug()
+	a.tearDown()
 }
 
-func (a *ProxyAdapter) killDebug() error {
+func (a *ProxyAdapter) tearDown() error {
+	slog.Debug("close connection")
+	if a.debugConn != nil {
+		a.debugConn.Close()
+	}
 	slog.Debug("kill the debug process")
 	if a.debugProcess != nil {
 		if err := a.debugProcess.Kill(); err != nil {
@@ -163,6 +171,10 @@ func (a *ProxyAdapter) killDebug() error {
 			return err
 		}
 		a.debugProcess = nil
+	}
+	slog.Debug("remove the temporary binary")
+	if a.debugBin != "" {
+		_ = os.Remove(a.debugBin)
 	}
 	return nil
 }

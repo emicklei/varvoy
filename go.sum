@@ -1,6 +1,2 @@
-github.com/emicklei/yaegi v0.1.0 h1:1Kw68l6ldSDQPl0zwwMrerW4S8QWgsLC8XgqZ9E49lY=
-github.com/emicklei/yaegi v0.1.0/go.mod h1:4eVhbPb3LnD2VigQjhYbEJ69vDRFdT2HQNrXx8eEwUY=
-github.com/emicklei/yaegi-debug-adapter v0.1.0 h1:mRaIiGAutZ95C/2CL7Mgw59lbPga+KVZn7WSogVRRBk=
-github.com/emicklei/yaegi-debug-adapter v0.1.0/go.mod h1:mElXDr+mBxcYDWvue+v7IjaiEBKlDnPAelXRQgmZAog=
 golang.org/x/mod v0.17.0 h1:zY54UmvipHiNd+pm+m0x9KhZ9hl1/7QNMyxXbc6ICqA=
 golang.org/x/mod v0.17.0/go.mod h1:hTbmBsO62+eylJbnUtE2MGJUyE7QWk4xUqPFrRgJ+7c=

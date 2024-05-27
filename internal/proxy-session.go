@@ -68,7 +68,7 @@ func (p *ProxySession) ReceiveInitializeResponse() (*dap.Capabilities, error) {
 }
 
 // Run starts the session. Run blocks until the session is terminated.
-// Run receives protocolmessages (Response,Event) and responds them.
+// Run receives protocolmessages (Response,Event) from downstream and responds them to upstream.
 func (p *ProxySession) Run() error {
 	slog.Debug("receiving and responding messages...")
 
@@ -78,7 +78,6 @@ func (p *ProxySession) Run() error {
 			slog.Error("failed to decode message", "err", err)
 			return err
 		}
-		slog.Debug("received from downstream", "pm", pm)
 		dapResponse, ok := pm.(*dap.Response)
 		if ok {
 			req := new(dap.Request)
@@ -91,9 +90,12 @@ func (p *ProxySession) Run() error {
 		} else {
 			dapEvent, ok := pm.(*dap.Event)
 			if ok {
-				slog.Debug("todo event", "event", dapEvent)
+				if err := p.adapter.session.Event(dapEvent.Event, dapEvent.Body); err != nil {
+					return err
+				}
+				slog.Debug("event to upstream", "seq", dapEvent.Seq, "event", dapEvent.Event)
 			} else {
-				slog.Debug("unhandled message", "pm", pm)
+				slog.Warn("unhandled message", "pm", pm)
 			}
 		}
 	}

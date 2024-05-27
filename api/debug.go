@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"os"
 	"reflect"
 
 	dbg "github.com/traefik-contrib/yaegi-debug-adapter"
@@ -12,7 +13,12 @@ import (
 
 // Debug is called from the augmented debugging target binary
 // It compiles a complete package and starts a DAP listener.
+// For debugging, when the binary is started with VARVOY_RUN=true then execute the program with an interpreter.
 func Debug(mainDir string, symbols map[string]map[string]reflect.Value) {
+	if os.Getenv("VARVOY_RUN") != "" {
+		Run(mainDir, symbols)
+		return
+	}
 	newInterp := func(opts interp.Options) (*interp.Interpreter, error) {
 		i := interp.New(opts)
 		i.Use(stdlib.Symbols)

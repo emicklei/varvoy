@@ -1,8 +1,14 @@
 ## varvoy
 
+**_varvoy is short for "Variable Voyager"_** 
+
 A Go debugger that allows code modification.
 
-It is build on top of two awesome packages [yaegi](https://github.com/traefik/yaegi) and [yaegi-debug-adapater](https://github.com/traefik-contrib/yaegi-debug-adapter).
+Is intended to be used with the `vscode-go` extension of Microsoft Visual Studio Code.
+
+It is build on top of two awesome packages:
+- [yaegi](https://github.com/traefik/yaegi)
+- [yaegi-debug-adapter](https://github.com/traefik-contrib/yaegi-debug-adapter).
 
 ## install
 
@@ -12,7 +18,6 @@ go install github.com/emicklei/varvoy/cmd/varvoy@latest
 
 ## configure
 
-Is intended to be used with the `vscode-go` extension of Microsoft Visual Studio Code.
 In `settings.json` of the Go VSCode plugin, set an alternative to `dlv`.
 Use `which varvoy` to find the absolute path.
 
@@ -29,6 +34,6 @@ Use `which varvoy` to find the absolute path.
 
 ## current limitations
 
-- linux only for now
-- go mod file cannot have replace
+- no Windows support for now
 - project must have a go.mod
+- go mod file cannot have replace

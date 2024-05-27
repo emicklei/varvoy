@@ -16,19 +16,22 @@ import (
 	"golang.org/x/mod/modfile"
 )
 
+type ComposeOptions struct {
+	MainDir string
+	TempDir string
+}
+
 type Composer struct {
 	workDir        string
 	mainDir        string
 	executableName string
 }
 
-func NewExecutableComposer(mainDir string) *Composer {
-	dir := os.TempDir()
-
+func NewExecutableComposer(opts ComposeOptions) *Composer {
 	random := RandStringRunes(8)
 	return &Composer{
-		workDir:        filepath.Join(dir, "varvoy_"+random),
-		mainDir:        mainDir,
+		workDir:        filepath.Join(opts.TempDir, "varvoy_"+random),
+		mainDir:        opts.MainDir,
 		executableName: "_debug_bin_varvoy_" + random,
 	}
 }
@@ -62,11 +65,11 @@ func (c *Composer) Compose() error {
 	// TODO
 	// mod.AddRequire("github.com/traefik/yaegi", "v0.16.1")
 	// if err := mod.AddReplace("github.com/traefik/yaegi", "", "../../../yaegi", ""); err != nil {
-	if err := mod.AddReplace("github.com/traefik/yaegi", "", "github.com/emicklei/yaegi", "v0.1.0"); err != nil {
+	if err := mod.AddReplace("github.com/traefik/yaegi", "", "/Users/emicklei/Projects/github.com/emicklei/yaegi", ""); err != nil {
 		return err
 	}
 	// replace github.com/traefik-contrib/yaegi-debug-adapter => github.com/emicklei/yaegi-debug-adapter v0.1.0
-	if err := mod.AddReplace("github.com/traefik-contrib/yaegi-debug-adapter", "", "github.com/emicklei/yaegi-debug-adapter", "v0.1.0"); err != nil {
+	if err := mod.AddReplace("github.com/traefik-contrib/yaegi-debug-adapter", "", "/Users/emicklei/Projects/github.com/emicklei/yaegi-debug-adapter", ""); err != nil {
 		return err
 	}
 	// mod.AddRequire("github.com/emicklei/varvoy", "v0.0.0")
