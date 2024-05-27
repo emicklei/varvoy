@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -174,7 +175,13 @@ func (a *ProxyAdapter) tearDown() error {
 	}
 	slog.Debug("remove the temporary binary")
 	if a.debugBin != "" {
-		_ = os.Remove(a.debugBin)
+		// keep binary around when debugging
+		if !slog.Default().Enabled(context.Background(), slog.LevelDebug) {
+			_ = os.Remove(a.debugBin)
+		} else {
+			fmt.Println("VARVOY_RUN=true", a.debugBin)
+			fmt.Println("VARVOY_EXEC=true", a.debugBin)
+		}
 	}
 	return nil
 }

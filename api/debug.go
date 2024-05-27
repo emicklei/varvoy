@@ -14,10 +14,16 @@ import (
 
 // Debug is called from the augmented debugging target binary
 // It compiles a complete package and starts a DAP listener.
-// For debugging, when the binary is started with VARVOY_RUN=true then execute the program with an interpreter.
+// For debugging,
+// when the binary is started with VARVOY_EXEC=true then execute the program with an interpreter.
+// when the binary is started with VARVOY_RUN=true then continue the program with a debugger.
 func Debug(mainDir string, symbols map[string]map[string]reflect.Value) {
+	if os.Getenv("VARVOY_EXEC") != "" {
+		exec(mainDir, symbols)
+		return
+	}
 	if os.Getenv("VARVOY_RUN") != "" {
-		Run(mainDir, symbols)
+		run(mainDir, symbols)
 		return
 	}
 	newInterp := func(opts interp.Options) (*interp.Interpreter, error) {
@@ -49,11 +55,10 @@ func Debug(mainDir string, symbols map[string]map[string]reflect.Value) {
 	ListenAndHandle(adp, ListenOptions{})
 }
 
-func Run(mainDir string, symbols map[string]map[string]reflect.Value) {
+func exec(mainDir string, symbols map[string]map[string]reflect.Value) {
 	i := interp.New(interp.Options{})
 	i.Use(stdlib.Symbols)
 	i.Use(symbols)
-	i.ImportUsed()
 	prog, err := i.CompilePackage(mainDir)
 	if err != nil {
 		// TODO
@@ -64,4 +69,24 @@ func Run(mainDir string, symbols map[string]map[string]reflect.Value) {
 		// TODO
 		panic(err)
 	}
+}
+
+func run(mainDir string, symbols map[string]map[string]reflect.Value) {
+	i := interp.New(interp.Options{})
+	i.Use(stdlib.Symbols)
+	i.Use(symbols)
+	prog, err := i.CompilePackage(mainDir)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	dbg := i.Debug(context.Background(), prog, func(de *interp.DebugEvent) {
+		slog.Debug("handle", "event", de)
+	}, &interp.DebugOptions{})
+	for _, each := range dbg.GoRoutines() {
+		if err := dbg.Continue(each.ID()); err != nil {
+			fmt.Println("cannot continue go-routine", each.ID(), each.Name())
+		}
+	}
+	dbg.Wait()
 }
