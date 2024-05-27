@@ -82,11 +82,9 @@ func run(mainDir string, symbols map[string]map[string]reflect.Value) {
 	}
 	dbg := i.Debug(context.Background(), prog, func(de *interp.DebugEvent) {
 		slog.Debug("handle", "event", de)
-	}, &interp.DebugOptions{})
-	for _, each := range dbg.GoRoutines() {
-		if err := dbg.Continue(each.ID()); err != nil {
-			fmt.Println("cannot continue go-routine", each.ID(), each.Name())
-		}
+	}, &interp.DebugOptions{GoRoutineStartAt1: true})
+	if err := dbg.Continue(1); err != nil {
+		fmt.Println("cannot continue go-routine 1")
 	}
 	dbg.Wait()
 }
