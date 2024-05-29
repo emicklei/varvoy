@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+func IsTraceEnabled() bool {
+	return getLogFlag()
+}
+
 func flagValueString(f string) string {
 	if !strings.Contains(f, "=") {
 		return ""

@@ -18,6 +18,7 @@ const (
 )
 
 type ProxyAdapter struct {
+	Trace   bool // if set then put session in debug mode
 	session *dap.Session
 
 	// for the target program to debug
@@ -31,6 +32,9 @@ type ProxyAdapter struct {
 func (a *ProxyAdapter) Initialize(s *dap.Session, ccaps *dap.InitializeRequestArguments) (*dap.Capabilities, error) {
 	slog.Debug("Initialize")
 	a.session = s
+	if a.Trace {
+		s.Debug(os.Stdout)
+	}
 
 	// create temporary binary
 	wd, _ := os.Getwd()

@@ -13,7 +13,7 @@ const Version = "0.0.6"
 //
 //	dap --listen=127.0.0.1:52950 --log-dest=3 --log
 func main() {
-	adp := new(internal.ProxyAdapter)
+	adp := &internal.ProxyAdapter{Trace: api.IsTraceEnabled()}
 	opts := api.ListenOptions{
 		BeforeAccept: func(addr string) {
 			// Line must start with "DAP server listening at:"
