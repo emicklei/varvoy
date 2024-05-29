@@ -58,6 +58,10 @@ func ListenAndHandle(adp dap.Handler, opts ListenOptions) {
 	}
 	defer func() { _ = c.Close() }()
 
+	if verbose {
+		s.Debug(os.Stdout)
+	}
+
 	err = s.Run()
 	if err != nil {
 		log.Fatal(err)

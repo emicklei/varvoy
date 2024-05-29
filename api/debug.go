@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"reflect"
 
 	dbg "github.com/traefik-contrib/yaegi-debug-adapter"
@@ -31,7 +32,8 @@ func Debug(mainDir string, symbols map[string]map[string]reflect.Value) {
 		i.Use(stdlib.Symbols)
 		i.Use(symbols)
 		_, err := i.CompilePackage(mainDir)
-		if err != nil {
+		if err != nil { // TODO
+			fmt.Println("CompilePackage failed", "err", err)
 			slog.Error("CompilePackage failed", "err", err)
 			return nil, err
 		}
@@ -49,9 +51,9 @@ func Debug(mainDir string, symbols map[string]map[string]reflect.Value) {
 		StopAtEntry:    false,
 		NewInterpreter: newInterp,
 		Errors:         errch,
-		SrcPath:        mainDir,
+		SrcPath:        filepath.Join(mainDir, "main.go"), // TODO
 	}
-	adp := dbg.NewAdapter(mainDir, (*interp.Interpreter).CompilePackage, debugOpts)
+	adp := dbg.NewAdapter((*interp.Interpreter).CompilePackage, mainDir, debugOpts)
 	ListenAndHandle(adp, ListenOptions{})
 }
 
