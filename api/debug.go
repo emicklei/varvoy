@@ -29,12 +29,10 @@ func Debug(mainDir string, symbols map[string]map[string]reflect.Value) {
 	}
 	newInterp := func(opts interp.Options) (*interp.Interpreter, error) {
 		i := interp.New(opts)
-		i.Use(stdlib.Symbols)
-		i.Use(symbols)
-		_, err := i.CompilePackage(mainDir)
-		if err != nil { // TODO
-			fmt.Println("CompilePackage failed", "err", err)
-			slog.Error("CompilePackage failed", "err", err)
+		if err := i.Use(stdlib.Symbols); err != nil {
+			return nil, err
+		}
+		if err := i.Use(symbols); err != nil {
 			return nil, err
 		}
 		return i, nil

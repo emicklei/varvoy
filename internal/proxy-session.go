@@ -21,6 +21,8 @@ type ProxySession struct {
 	dec     *dap.Decoder
 	enc     *dap.Encoder
 	sendMux *sync.Mutex
+	seq     int
+	seqMap  map[int]int
 }
 
 func NewProxySession(adapter *ProxyAdapter, conn net.Conn) *ProxySession {
@@ -29,6 +31,7 @@ func NewProxySession(adapter *ProxyAdapter, conn net.Conn) *ProxySession {
 		dec:     dap.NewDecoder(conn),
 		enc:     dap.NewEncoder(conn),
 		sendMux: new(sync.Mutex),
+		seqMap:  map[int]int{},
 	}
 }
 
@@ -37,12 +40,16 @@ func (p *ProxySession) Forward(dapRequest *dap.Request) error {
 	defer p.sendMux.Unlock()
 
 	// send to downstream
+	// map sequence
+	p.seq--
+	p.seqMap[p.seq] = dapRequest.Seq
+	dapRequest.Seq = p.seq
+
 	err := p.enc.Encode(dapRequest)
 	if err != nil {
 		slog.Error("failed to forward request", "err", err, "r", dapRequest)
 		return err
 	}
-	slog.Debug("forwarded", "seq", dapRequest.ProtocolMessage.Seq, "command", dapRequest.Command)
 	return nil
 }
 
@@ -70,7 +77,7 @@ func (p *ProxySession) ReceiveInitializeResponse() (*dap.Capabilities, error) {
 // Run starts the session. Run blocks until the session is terminated.
 // Run receives protocolmessages (Response,Event) from downstream and responds them to upstream.
 func (p *ProxySession) Run() error {
-	slog.Debug("receiving and responding messages...")
+	slog.Debug("forever receiving and responding messages...")
 
 	for {
 		pm, err := p.dec.Decode()
@@ -82,18 +89,20 @@ func (p *ProxySession) Run() error {
 		if ok {
 			req := new(dap.Request)
 			req.Command = dapResponse.Command
-			req.Seq = dapResponse.Seq
+
+			// map sequence back
+			originalRequestSeq := p.seqMap[dapResponse.RequestSeq]
+			req.Seq = originalRequestSeq
+
 			if err := p.adapter.session.Respond(req, dapResponse.Success, dapResponse.Message.Get(), dapResponse.Body); err != nil {
 				return err
 			}
-			slog.Debug("responded to upstream", "seq", req.Seq, "command", req.Command)
 		} else {
 			dapEvent, ok := pm.(*dap.Event)
 			if ok {
 				if err := p.adapter.session.Event(dapEvent.Event, dapEvent.Body); err != nil {
 					return err
 				}
-				slog.Debug("event to upstream", "seq", dapEvent.Seq, "event", dapEvent.Event)
 			} else {
 				slog.Warn("unhandled message", "pm", pm)
 			}

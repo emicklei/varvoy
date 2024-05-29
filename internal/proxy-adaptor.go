@@ -122,7 +122,6 @@ func (a *ProxyAdapter) Process(pm dap.IProtocolMessage) error {
 	if !ok {
 		return nil
 	}
-	slog.Debug("Process", "command", m.Command)
 	var stop bool
 	success := false
 
@@ -177,12 +176,13 @@ func (a *ProxyAdapter) tearDown() error {
 		}
 		a.debugProcess = nil
 	}
-	slog.Debug("remove the temporary binary")
 	if a.debugBin != "" {
 		// keep binary around when debugging
 		if !slog.Default().Enabled(context.Background(), slog.LevelDebug) {
+			slog.Debug("remove the temporary binary")
 			_ = os.Remove(a.debugBin)
 		} else {
+			slog.Debug("keep the temporary binary")
 			fmt.Println("VARVOY_RUN=true", a.debugBin)
 			fmt.Println("VARVOY_EXEC=true", a.debugBin)
 		}
