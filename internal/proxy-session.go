@@ -20,9 +20,9 @@ type ProxySession struct {
 	adapter *ProxyAdapter
 	dec     *dap.Decoder
 	enc     *dap.Encoder
-	sendMux *sync.Mutex
-	seq     int
-	seqMap  map[int]int
+	sendMux *sync.Mutex // to protect the encoder and the sequence map
+	seq     int         // for new sequence numbers to debug process
+	seqMap  map[int]int // for mapping response request_seq back to original request
 }
 
 func NewProxySession(adapter *ProxyAdapter, conn net.Conn) *ProxySession {
@@ -39,12 +39,12 @@ func (p *ProxySession) Forward(dapRequest *dap.Request) error {
 	p.sendMux.Lock()
 	defer p.sendMux.Unlock()
 
-	// send to downstream
-	// map sequence
+	// map sequence number to a new negative one
 	p.seq--
 	p.seqMap[p.seq] = dapRequest.Seq
 	dapRequest.Seq = p.seq
 
+	// send to downstream
 	err := p.enc.Encode(dapRequest)
 	if err != nil {
 		slog.Error("failed to forward request", "err", err, "r", dapRequest)
@@ -94,12 +94,14 @@ func (p *ProxySession) Run() error {
 			originalRequestSeq := p.seqMap[dapResponse.RequestSeq]
 			req.Seq = originalRequestSeq
 
+			// send to upstream
 			if err := p.adapter.session.Respond(req, dapResponse.Success, dapResponse.Message.Get(), dapResponse.Body); err != nil {
 				return err
 			}
 		} else {
 			dapEvent, ok := pm.(*dap.Event)
 			if ok {
+				// pass event as is
 				if err := p.adapter.session.Event(dapEvent.Event, dapEvent.Body); err != nil {
 					return err
 				}
