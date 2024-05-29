@@ -62,7 +62,7 @@ func newDriver(srcPath string) *driver {
 		SrcPath:        srcPath,
 	}
 
-	adp := dbg.NewAdapter(srcPath, (*interp.Interpreter).CompilePackage, opts)
+	adp := dbg.NewAdapter((*interp.Interpreter).CompilePackage, srcPath, opts)
 
 	ses := dap.NewSession(os.Stdin, os.Stdout, adp)
 	ses.Debug(os.Stderr)
