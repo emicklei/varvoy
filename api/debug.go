@@ -61,13 +61,13 @@ func exec(mainDir string, symbols map[string]map[string]reflect.Value) {
 	i.Use(symbols)
 	prog, err := i.CompilePackage(mainDir)
 	if err != nil {
-		// TODO
-		panic(err)
+		fmt.Println("compile package failed:", err)
+		os.Exit(1)
 	}
-	_, err = i.ExecuteWithContext(context.Background(), prog)
+	res, err := i.ExecuteWithContext(context.Background(), prog)
 	if err != nil {
-		// TODO
-		panic(err)
+		fmt.Println("execute with context failed:", err, "result", res)
+		os.Exit(1)
 	}
 }
 
@@ -77,8 +77,8 @@ func run(mainDir string, symbols map[string]map[string]reflect.Value) {
 	i.Use(symbols)
 	prog, err := i.CompilePackage(mainDir)
 	if err != nil {
-		// TODO
-		panic(err)
+		fmt.Println("compile package failed:", err)
+		os.Exit(1)
 	}
 	dbg := i.Debug(context.Background(), prog, func(de *interp.DebugEvent) {
 		slog.Debug("handle", "event", de)
