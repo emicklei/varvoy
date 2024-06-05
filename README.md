@@ -32,7 +32,7 @@ Use `which varvoy` to find the absolute path.
 
 ## design
 
-See [./doc/DESIGN.md]
+See [Desgin](./doc/DESIGN.md)
 
 
 ## current limitations
