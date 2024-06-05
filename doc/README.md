@@ -1,5 +1,5 @@
 
-![flow](varvoy_flow.png "Varvoy desgin")
+![flow](flow_varvoy.png "Varvoy desgin")
 
 ```mermaid
 sequenceDiagram
