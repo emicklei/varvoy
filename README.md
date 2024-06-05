@@ -11,7 +11,7 @@ It is build on top of two awesome packages:
 ## features
 
 - works with the `vscode-go` extension of Microsoft Visual Studio Code
-- stubs required Go modules
+- imports generated stubs for required Go modules
 
 ## install
 
@@ -32,7 +32,7 @@ Use `which varvoy` to find the absolute path.
 
 ## design
 
-See [Desgin](./doc/DESIGN.md)
+See [Desgin](./doc/README.md)
 
 
 ## current limitations
