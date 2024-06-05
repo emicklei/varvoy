@@ -1,3 +1,6 @@
+
+![flow](varvoy_flow.png "Varvoy desgin")
+
 ```mermaid
 sequenceDiagram
     vscode-go ->> varvoy[dap.Session]: protocolmsg (tcp)

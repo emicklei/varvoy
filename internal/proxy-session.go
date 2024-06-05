@@ -20,9 +20,9 @@ type ProxySession struct {
 	adapter *ProxyAdapter
 	dec     *dap.Decoder
 	enc     *dap.Encoder
-	sendMux *sync.Mutex // to protect the encoder and the sequence map
-	seq     int         // for new sequence numbers to debug process
-	seqMap  map[int]int // for mapping response request_seq back to original request
+	sendMux *sync.RWMutex // to protect the encoder and the sequence map
+	seq     int           // for new sequence numbers to debug process
+	seqMap  map[int]int   // for mapping response request_seq back to original request
 }
 
 func NewProxySession(adapter *ProxyAdapter, conn net.Conn) *ProxySession {
@@ -30,7 +30,7 @@ func NewProxySession(adapter *ProxyAdapter, conn net.Conn) *ProxySession {
 		adapter: adapter,
 		dec:     dap.NewDecoder(conn),
 		enc:     dap.NewEncoder(conn),
-		sendMux: new(sync.Mutex),
+		sendMux: new(sync.RWMutex),
 		seqMap:  map[int]int{},
 	}
 }
@@ -77,8 +77,6 @@ func (p *ProxySession) ReceiveInitializeResponse() (*dap.Capabilities, error) {
 // Run starts the session. Run blocks until the session is terminated.
 // Run receives protocolmessages (Response,Event) from downstream and responds them to upstream.
 func (p *ProxySession) Run() error {
-	slog.Debug("forever receiving and responding messages...")
-
 	for {
 		pm, err := p.dec.Decode()
 		if err != nil {
@@ -91,8 +89,12 @@ func (p *ProxySession) Run() error {
 			req.Command = dapResponse.Command
 
 			// map sequence back
+			p.sendMux.RLock()
 			originalRequestSeq := p.seqMap[dapResponse.RequestSeq]
+			p.sendMux.RUnlock()
 			req.Seq = originalRequestSeq
+
+			slog.Debug("respond", "msg", dapResponse.Message.Get(), "resp.req.seq", dapResponse.RequestSeq, "mapped.req.seq", originalRequestSeq)
 
 			// send to upstream
 			if err := p.adapter.session.Respond(req, dapResponse.Success, dapResponse.Message.Get(), dapResponse.Body); err != nil {
