@@ -2,13 +2,16 @@
 
 **_varvoy is short for "Variable Voyager"_** 
 
-A Go debugger that allows code modification.
-
-Is intended to be used with the `vscode-go` extension of Microsoft Visual Studio Code.
-
+A Go debugger.
+ 
 It is build on top of two awesome packages:
 - [yaegi](https://github.com/traefik/yaegi)
 - [yaegi-debug-adapter](https://github.com/traefik-contrib/yaegi-debug-adapter).
+
+## features
+
+- works with the `vscode-go` extension of Microsoft Visual Studio Code
+- stubs required Go modules
 
 ## install
 
@@ -27,10 +30,10 @@ Use `which varvoy` to find the absolute path.
     }
 ```
 
-## requirements
+## design
 
-- Microsoft Visual Studio Code 
-- `vscode-go` extension
+See [./doc/DESIGN.md]
+
 
 ## current limitations
 
