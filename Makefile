@@ -6,3 +6,6 @@ install: clean
 clean:
 	find . -name '_debug_bin*' | xargs rm -f
 	find . -name 'varvoy_*' | xargs rm -rf
+
+lint:
+	golangci-lint run

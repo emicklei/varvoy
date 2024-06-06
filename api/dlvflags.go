@@ -29,14 +29,6 @@ func flagValueInt(f string) int {
 	return i
 }
 
-func hostPort(v string) (string, string) {
-	hp := strings.Split(v, ":")
-	if len(hp) != 2 {
-		return "", ""
-	}
-	return hp[0], hp[1]
-}
-
 func getListenFlag() string {
 	for _, each := range os.Args {
 		if strings.HasPrefix(each, "--listen") {

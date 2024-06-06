@@ -57,8 +57,14 @@ func Debug(mainDir string, symbols map[string]map[string]reflect.Value) {
 
 func exec(mainDir string, symbols map[string]map[string]reflect.Value) {
 	i := interp.New(interp.Options{})
-	i.Use(stdlib.Symbols)
-	i.Use(symbols)
+	if err := i.Use(stdlib.Symbols); err != nil {
+		fmt.Println("use stdlib failed:", err)
+		os.Exit(1)
+	}
+	if err := i.Use(symbols); err != nil {
+		fmt.Println("use compiled symbols failed:", err)
+		os.Exit(1)
+	}
 	prog, err := i.CompilePackage(mainDir)
 	if err != nil {
 		fmt.Println("compile package failed:", err)
@@ -73,8 +79,8 @@ func exec(mainDir string, symbols map[string]map[string]reflect.Value) {
 
 func run(mainDir string, symbols map[string]map[string]reflect.Value) {
 	i := interp.New(interp.Options{})
-	i.Use(stdlib.Symbols)
-	i.Use(symbols)
+	_ = i.Use(stdlib.Symbols)
+	_ = i.Use(symbols)
 	prog, err := i.CompilePackage(mainDir)
 	if err != nil {
 		fmt.Println("compile package failed:", err)
@@ -86,5 +92,8 @@ func run(mainDir string, symbols map[string]map[string]reflect.Value) {
 	if err := dbg.Continue(1); err != nil {
 		fmt.Println("cannot continue go-routine 1")
 	}
-	dbg.Wait()
+	_, err = dbg.Wait()
+	if err != nil {
+		fmt.Println("cannot wait")
+	}
 }

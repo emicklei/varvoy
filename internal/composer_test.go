@@ -17,6 +17,7 @@ func enableDebugLog() {
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug})))
 }
 
+// nolint:errcheck
 func TestCompose(t *testing.T) {
 	enableDebugLog()
 	os.Mkdir("tmp", os.ModePerm)

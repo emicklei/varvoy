@@ -160,7 +160,7 @@ func (a *ProxyAdapter) Process(pm dap.IProtocolMessage) error {
 // Terminate implements dap.Handler and should not be called directly.
 func (a *ProxyAdapter) Terminate() {
 	slog.Debug("Terminate")
-	a.tearDown()
+	_ = a.tearDown()
 }
 
 func (a *ProxyAdapter) tearDown() error {

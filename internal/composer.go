@@ -81,10 +81,11 @@ func (c *Composer) Compose() error {
 	if err != nil {
 		return err
 	}
-	os.WriteFile(path.Join(c.workDir, "go.mod"), modContent, os.ModePerm)
+	if err := os.WriteFile(path.Join(c.workDir, "go.mod"), modContent, os.ModePerm); err != nil {
+		return err
+	}
 
-	err = genMain(c.mainDir, c.workDir, mod.Module.Mod.Path)
-	if err != nil {
+	if err := genMain(c.mainDir, c.workDir, mod.Module.Mod.Path); err != nil {
 		return err
 	}
 
@@ -103,23 +104,26 @@ func (c *Composer) Compose() error {
 	}
 
 	// for yaegi Extracter to work, we need to be in the imports dir
-	os.Chdir(c.mainDir)
+	if err := os.Chdir(c.mainDir); err != nil {
+		return err
+	}
+
 	for _, each := range mod.Require {
 		if err := yaegiExtractTo(each.Mod.Path, importsDir); err != nil {
 			return err
 		}
 	}
-	os.Chdir(c.workDir)
+	if err := os.Chdir(c.workDir); err != nil {
+		return err
+	}
 
 	// add dependencies for the interpreter and varvoy
-	err = goModTidy()
-	if err != nil {
+	if err := goModTidy(); err != nil {
 		return err
 	}
 
 	// build binary to connect and run
-	err = goBuild(filepath.Join(c.mainDir, c.executableName))
-	if err != nil {
+	if err := goBuild(filepath.Join(c.mainDir, c.executableName)); err != nil {
 		return err
 	}
 
