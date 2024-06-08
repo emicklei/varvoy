@@ -21,7 +21,7 @@ func main() {
 	now := time.Now()
 	fmt.Println(s, m, i, iptr, f, a, ar, ml, now)
 
-	// this part is commented because it break yaegi somehow
+	// this part is commented because it breaks yaegi somehow
 
 	// mt := map[string]*time.Time{
 	// 	"now":  &now,

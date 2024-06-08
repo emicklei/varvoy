@@ -13,6 +13,12 @@ It is build on top of two awesome packages:
 - works with the `vscode-go` extension of Microsoft Visual Studio Code
 - imports generated stubs for required Go modules
 
+## goal
+
+- handle code modification during debugging session
+- evaluate expression in a debugger session
+- restart from stack frame
+
 ## install
 
 ```
