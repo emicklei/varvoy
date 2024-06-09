@@ -8,6 +8,11 @@ It is build on top of two awesome packages:
 - [yaegi](https://github.com/traefik/yaegi)
 - [yaegi-debug-adapter](https://github.com/traefik-contrib/yaegi-debug-adapter).
 
+## status
+
+Work in progress:
+-  `todebug/withimports` and `todebug/hello` can be debugged.
+
 ## features
 
 - works with the `vscode-go` extension of Microsoft Visual Studio Code
