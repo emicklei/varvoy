@@ -1,5 +1,5 @@
-github.com/emicklei/yaegi v0.2.0 h1:NVvuDgiCFE8QwD5LDDYSsFbK8K2g3a3U2WZrGRbgbnk=
-github.com/emicklei/yaegi v0.2.0/go.mod h1:4eVhbPb3LnD2VigQjhYbEJ69vDRFdT2HQNrXx8eEwUY=
+github.com/emicklei/yaegi v0.2.1 h1:TVsz8Vhnh1lzpCmaBm+b9fv+qePPx6HgjNgmhtebMiQ=
+github.com/emicklei/yaegi v0.2.1/go.mod h1:4eVhbPb3LnD2VigQjhYbEJ69vDRFdT2HQNrXx8eEwUY=
 github.com/traefik-contrib/yaegi-debug-adapter v0.0.0-20240606200100-1922144a1da7 h1:YihHxiRMbfNOIe5H+I5YZJNUVWaXOANYJ0ZrhFF+Tts=
 github.com/traefik-contrib/yaegi-debug-adapter v0.0.0-20240606200100-1922144a1da7/go.mod h1:2X7QNrk54+yR4FsTN+LxbVxYZCCR7C+uH76la1daeHU=
 golang.org/x/mod v0.17.0 h1:zY54UmvipHiNd+pm+m0x9KhZ9hl1/7QNMyxXbc6ICqA=

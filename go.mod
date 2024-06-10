@@ -2,7 +2,7 @@ module github.com/emicklei/varvoy
 
 go 1.21.5
 
-replace github.com/traefik/yaegi => github.com/emicklei/yaegi v0.2.0
+replace github.com/traefik/yaegi => github.com/emicklei/yaegi v0.2.1
 
 // replace github.com/traefik/yaegi => ../yaegi
 

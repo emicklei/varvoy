@@ -65,11 +65,13 @@ func (c *Composer) Compose() error {
 	// TODO
 	// mod.AddRequire("github.com/traefik/yaegi", "v0.16.1")
 	// if err := mod.AddReplace("github.com/traefik/yaegi", "", "../../../yaegi", ""); err != nil {
+	// version := "" // latest
+	// version := "v0.2.1"
 	if err := mod.AddReplace("github.com/traefik/yaegi", "", "/Users/emicklei/Projects/github.com/emicklei/yaegi", ""); err != nil {
 		return err
 	}
 	// replace github.com/traefik-contrib/yaegi-debug-adapter => github.com/emicklei/yaegi-debug-adapter v0.1.0
-	if err := mod.AddReplace("github.com/traefik-contrib/yaegi-debug-adapter", "", "/Users/emicklei/Projects/github.com/emicklei/yaegi-debug-adapter", ""); err != nil {
+	if err := mod.AddReplace("github.com/traefik-contrib/yaegi-debug-adapter", "", "github.com/emicklei/yaegi-debug-adapter", ""); err != nil {
 		return err
 	}
 	// mod.AddRequire("github.com/emicklei/varvoy", "v0.0.0")
