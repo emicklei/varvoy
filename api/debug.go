@@ -90,10 +90,10 @@ func run(mainDir string, symbols map[string]map[string]reflect.Value) {
 		slog.Debug("handle", "event", de)
 	}, &interp.DebugOptions{GoRoutineStartAt1: true})
 	if err := dbg.Continue(1); err != nil {
-		fmt.Println("cannot continue go-routine 1")
+		fmt.Println("cannot continue go-routine 1:", err)
 	}
 	_, err = dbg.Wait()
 	if err != nil {
-		fmt.Println("cannot wait")
+		fmt.Println("cannot wait:", err)
 	}
 }
