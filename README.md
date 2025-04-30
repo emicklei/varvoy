@@ -10,6 +10,10 @@ It is build on top of two awesome packages:
 
 ## status
 
+(2025-04-30)
+This project relies heavily on the progress of the `yaegi` project.
+Currenly, work on this repository has been paused until some critical issues are resolved.
+
 Work in progress:
 -  `todebug/withimports` and `todebug/hello` can be debugged.
 
